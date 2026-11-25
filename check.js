@@ -1,0 +1,12 @@
+const lab = db.getSiblingDB('testdb');
+const rows = lab.fruitshop.find().toArray();
+const required = ['product_id', 'name', 'category', 'price', 'qty', 'tags'];
+const exists = lab.getCollectionNames().includes('fruitshop');
+const schemaOK = rows.length >= 3 && rows.every(row => required.every(field => Object.prototype.hasOwnProperty.call(row, field)) && typeof row.price === 'number' && typeof row.qty === 'number' && Array.isArray(row.tags));
+const ids = rows.map(row => row.product_id);
+const unique = new Set(ids).size === ids.length;
+const basic = exists && rows.length >= 3;
+printjson({ping: lab.runCommand({ping: 1}).ok, collection: exists, count: rows.length, basicPASS: basic, fieldsAndTypesOK: schemaOK, productIdsUnique: unique});
+print('READ-ONLY CHECK: no data modified. PASS verifies stored data only, not your query answers or course grade.');
+if (!(basic && schemaOK && unique)) quit(1);
+print('DATA CHECK PASS. Compare your own query results with the task requirements.');
